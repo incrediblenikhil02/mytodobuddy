@@ -1,0 +1,32 @@
+type Todo {
+    name: String
+    completed: Bool
+    dueDate: String
+    priority: String
+}
+
+type TodoList {
+    todos: [Todo]
+}
+
+state TodoList.State {
+    todos: [Todo]
+}
+
+endpoint query GetAllTodos!(): TodoList
+
+endpoint invokable Add!(name String, dueDate String, priority String): Todo
+    var todo = Todo{name: name, completed: false, dueDate: dueDate, priority: priority}
+
+    mutate todos <- TodoList.State.todos:
+        todos = append(todos, todo)
+
+    return todo
+
+endpoint invokable Complete!(name String): TodoList
+    mutate todos <- TodoList.State.todos:
+        for todo in todos:
+            if todo.name == name:
+                todo.completed = true
+
+    return TodoList{todos: todos}
